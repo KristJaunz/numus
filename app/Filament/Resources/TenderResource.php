@@ -41,6 +41,17 @@ class TenderResource extends Resource
     protected static ?string $pluralLabel = "Darījumi";
 
 
+    public static function getNavigationLabel(): string
+    {
+        return __('Darījumi');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('Darījumi');
+    }
+
+
     public static function table(Table $table): Table
     {
         return $table
@@ -101,12 +112,12 @@ class TenderResource extends Resource
                     ->money('EUR')
                     ->label('Davanu karte')->sortable(),
 
-                Tables\Columns\TextColumn::make('total_amount')
+     /*           Tables\Columns\TextColumn::make('total_amount')
                     ->label('Apmaksai')
                     ->state(function ($record) {
                         return (float) $record->amount_cash + (float) $record->amount_card + (float) $record->amount_gift;
                     })
-                    ->money('EUR'),
+                    ->money('EUR'),*/
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),

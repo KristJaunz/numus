@@ -20,6 +20,16 @@ class ShopResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    public static function getNavigationLabel(): string
+    {
+        return __('Veikali');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('Konfigurācija');
+    }
+
     public static function form(Form $form): Form
     {
         return $form

@@ -22,6 +22,17 @@ class ProductResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+
+    public static function getNavigationLabel(): string
+    {
+        return __('Produkti');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('Konfigurācija');
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -34,7 +45,7 @@ class ProductResource extends Resource
                     ->label('Prece')
                     ->searchable()
                     ->getSearchResultsUsing(fn(string $search): array => \App\Models\Jumis\Product::where('ProductName', 'like', "%{$search}%")->limit(50)->pluck('ProductName', 'ProductID')->toArray())
-                    ->getOptionLabelsUsing(fn(array $values): array => \App\Models\Jumis\Product::whereIn('ProductID', $values)->pluck('ProductID', 'ProductName')->toArray())
+                    ->getOptionLabelsUsing(fn(array $values): array => \App\Models\Jumis\Product::whereIn('ProductID', $values)->pluck('ProductName', '')->toArray())
                     ->nullable(),
 
                 Forms\Components\TextInput::make('tax_rate')

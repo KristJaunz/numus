@@ -20,6 +20,16 @@ class LogResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
 
+    public static function getNavigationLabel(): string
+    {
+        return __('Žurnāls');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('Darījumi');
+    }
+
 
     public static function table(Table $table): Table
     {
