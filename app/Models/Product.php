@@ -20,4 +20,9 @@ class Product extends Model
     {
         return self::list()[$key] ?? $default;
     }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class, 'product_id', 'ProductID');
+    }
 }

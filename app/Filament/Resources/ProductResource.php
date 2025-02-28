@@ -48,7 +48,15 @@ class ProductResource extends Resource
     {
         return $table
             ->columns([
-                //
+                Tables\Columns\TextColumn::make('product.ProductName')
+                    ->label('Prece')
+                    ->searchable()
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('tax_rate')
+                    ->label('PVN likme')
+                    ->searchable()
+                    ->sortable(),
             ])
             ->filters([
                 //
