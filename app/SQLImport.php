@@ -100,15 +100,33 @@ class SQLImport
                 $identifier = $storeDocID. " / " . $identifier;
 
                 foreach ($record->docLines as $line) {
-                    StoreDocLine::create([
+
+
+                  /*  $documentLine->Price = $priceNoVat;
+                    $documentLine->PriceLVL = $priceNoVat;
+                    $documentLine->PriceWithTax = $priceWithVAT;*/
+
+                    $priceNoVat = $line->pb / ((float) '1.'.(int) $line->r);
+
+                    $s = StoreDocLine::create([
                         'StoreDocID' => $storeDocID,
                         'ProductID' => $line->i,
                         'Quantity' => $line->q,
-                        'PriceWithTax' => $line->pb,
-                        'DiscountPercent' => $line->d,
+
+                        'Price' => $priceNoVat,
+                        'PriceLVL' => $priceNoVat,
                         'VatRate' => $line->r,
+
+                        'DiscountPercent' => (float) $line->d > 0 ? number_format((float) $line->d,4) : null,
+                        'PriceWithTax' => $line->p,
+
+
                         'StoreOutID' => $storeOutId,
                     ]);
+
+
+
+
                 }
 
                 $connection->commit();
@@ -273,6 +291,16 @@ class SQLImport
         }
 
         return false;
+    }
+
+    public function getPrice(float $price, $discount): float
+    {
+        return round($price - ($price * ($discount / 100)),4);
+    }
+
+    public function getDiscount(float $price, $discount): float
+    {
+        return round(($price * ($discount / 100)),4);
     }
 
 }

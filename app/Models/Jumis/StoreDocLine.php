@@ -44,17 +44,19 @@ class StoreDocLine extends Jumis
 
                 $priceWithVAT = $documentLine->PriceWithTax;
 
-                if ($documentLine->VatRate > 0) {
+              /*  if ($documentLine->VatRate > 0) {
                     $priceNoVat = $priceWithVAT / ((float) '1.'.(int) $documentLine->VatRate);
                 } else {
                     $priceNoVat = $documentLine->PriceWithTax;
-                }
+                }*/
 
                 $documentLine->Cost = null;
                 $documentLine->PricePurchase = null;
-                $documentLine->Price = $priceNoVat;
-                $documentLine->PriceLVL = $priceNoVat;
-                $documentLine->PriceWithTax = $priceWithVAT;
+
+
+
+
+
 
             } else {
                 throw new \Exception('Sistēma pašlaik neatbalsta šī dokumenta labošanu.');
@@ -62,7 +64,7 @@ class StoreDocLine extends Jumis
 
             $documentLine->LinkedLine = 0;
             $documentLine->LineOrder = 0;
-            $documentLine->DiscountPercent = 0;
+          //  $documentLine->DiscountPercent = 0;
             $documentLine->IsReverse = 0;
 
             $documentLine->StoreDocTypeID = $document->StoreDocTypeID;
