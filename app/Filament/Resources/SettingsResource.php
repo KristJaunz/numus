@@ -17,7 +17,7 @@ class SettingsResource extends Resource
 {
     protected static ?string $model = Settings::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
 
     public static function getNavigationLabel(): string
     {
@@ -52,22 +52,26 @@ class SettingsResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable(isIndividual: true)
+                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('key')
                     ->toggleable()
                     ->toggledHiddenByDefault()
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('type')
                     ->toggleable()
                     ->toggledHiddenByDefault()
                     ->searchable()
                     ->sortable(),
+
                 Tables\Columns\TextColumn::make('value')
-                    ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable(isIndividual: true)
+                    ->toggleable(),
             ])
             ->filters([
                 //

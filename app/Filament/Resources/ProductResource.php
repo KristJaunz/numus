@@ -20,7 +20,7 @@ class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-newspaper';
 
 
     public static function getNavigationLabel(): string
@@ -60,14 +60,16 @@ class ProductResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('product.ProductName')
-                    ->label('Prece')
-                    ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable(isIndividual: true)
+                    ->toggleable()
+                    ->label('Prece'),
 
                 Tables\Columns\TextColumn::make('tax_rate')
-                    ->label('PVN likme')
-                    ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->searchable(isIndividual: true)
+                    ->toggleable()
+                    ->label('PVN likme'),
             ])
             ->filters([
                 //

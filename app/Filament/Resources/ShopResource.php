@@ -18,7 +18,7 @@ class ShopResource extends Resource
 {
     protected static ?string $model = Shop::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-building-storefront';
 
     public static function getNavigationLabel(): string
     {
@@ -54,13 +54,25 @@ class ShopResource extends Resource
                     ->label('Partneris')
                     ->state(function ($record) {
                         return Partner::listWarehouses()[$record->partner_id];
-                    }),
+                    })
+                    ->sortable()
+                    ->searchable(isIndividual: true)
+                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('address')
+                    ->sortable()
+                    ->searchable(isIndividual: true)
+                    ->toggleable()
                     ->label('Adrese'),
                 Tables\Columns\TextColumn::make('doc_serial')
+                    ->sortable()
+                    ->searchable(isIndividual: true)
+                    ->toggleable()
                     ->label('Dokumenta sērija'),
                 Tables\Columns\TextColumn::make('doc_serial_return')
+                    ->sortable()
+                    ->searchable(isIndividual: true)
+                    ->toggleable()
                     ->label('Atgriešanas dokumenta sērija'),
             ])
             ->filters([
