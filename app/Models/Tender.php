@@ -28,6 +28,6 @@ class Tender extends Model
 
     public function docLines()
     {
-        return $this->hasMany(DocLine::class);
+        return $this->hasMany(DocLine::class)->withTrashed();
     }
 }
