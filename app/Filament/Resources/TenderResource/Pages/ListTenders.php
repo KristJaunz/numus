@@ -33,7 +33,7 @@ class ListTenders extends ListRecords
                 ->modalContent(fn() => self::getDuplicatesPreview())
                 ->action(fn() => self::deleteDuplicates()),
 
-            \Filament\Actions\Action::make('preview_duplicates')
+            \Filament\Actions\Action::make('sync_sales_data')
                 ->label('Sinhronizēt')
                 ->icon('heroicon-o-arrow-path')
                 ->modalHeading('Pārdošanas datu sinhronizācija')
