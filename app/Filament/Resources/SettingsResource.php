@@ -55,7 +55,8 @@ class SettingsResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->sortable()
                     ->searchable(isIndividual: true)
-                    ->toggleable(),
+                    ->toggleable()
+                    ->label('Nosaukums'),
 
                 Tables\Columns\TextColumn::make('key')
                     ->toggleable()
@@ -72,7 +73,8 @@ class SettingsResource extends Resource
                 Tables\Columns\TextColumn::make('value')
                     ->sortable()
                     ->searchable(isIndividual: true)
-                    ->toggleable(),
+                    ->toggleable()
+                    ->label('Vērtība'),
 
                 TextColumn::make('created_at')
                     ->toggleable()
