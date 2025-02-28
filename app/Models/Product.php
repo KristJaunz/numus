@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Cache;
 
 class Product extends Model
 {
+    protected $guarded = [];
 
     public static function list()
     {
