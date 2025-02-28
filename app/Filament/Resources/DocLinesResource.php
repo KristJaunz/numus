@@ -114,19 +114,22 @@ class DocLinesResource extends Resource
                     ->hidden(),
 
                 TextColumn::make('created_at')
-                    ->label('Created At')
+                    ->toggleable()
                     ->sortable()
-                    ->hidden(),
+                    ->toggledHiddenByDefault()
+                    ->label('Pievienots'),
 
                 TextColumn::make('updated_at')
-                    ->label('Updated At')
+                    ->toggleable()
                     ->sortable()
-                    ->hidden(),
+                    ->toggledHiddenByDefault()
+                    ->label('Labots'),
 
                 TextColumn::make('deleted_at')
-                    ->label('Deleted At')
+                    ->toggleable()
                     ->sortable()
-                    ->hidden(false),
+                    ->toggledHiddenByDefault()
+                    ->label('Deleted At'),
             ]);
     }
 

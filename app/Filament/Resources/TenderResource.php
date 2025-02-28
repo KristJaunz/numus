@@ -118,6 +118,19 @@ class TenderResource extends Resource
                         return (float) $record->amount_cash + (float) $record->amount_card + (float) $record->amount_gift;
                     })
                     ->money('EUR'),*/
+
+                TextColumn::make('created_at')
+                    ->toggleable()
+                    ->sortable()
+                    ->toggledHiddenByDefault()
+                    ->label('Pievienots'),
+
+                TextColumn::make('updated_at')
+                    ->toggleable()
+                    ->sortable()
+                    ->toggledHiddenByDefault()
+                    ->label('Labots'),
+
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),

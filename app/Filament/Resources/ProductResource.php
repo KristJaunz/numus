@@ -12,6 +12,7 @@ use Filament\Forms\Form;
 use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -70,6 +71,19 @@ class ProductResource extends Resource
                     ->searchable(isIndividual: true)
                     ->toggleable()
                     ->label('PVN likme'),
+
+                TextColumn::make('created_at')
+                    ->toggleable()
+                    ->sortable()
+                    ->toggledHiddenByDefault()
+                    ->label('Pievienots'),
+
+                TextColumn::make('updated_at')
+                    ->toggleable()
+                    ->sortable()
+                    ->toggledHiddenByDefault()
+                    ->label('Labots'),
+
             ])
             ->filters([
                 //
