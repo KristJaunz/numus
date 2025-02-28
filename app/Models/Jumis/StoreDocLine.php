@@ -42,9 +42,13 @@ class StoreDocLine extends Jumis
             } elseif ($document->StoreDocTypeID == DocumentType::SALES_INVOICE->value) {
 
 
-                $priceWithVAT = $documentLine->PriceWithTax;
 
-              /*  if ($documentLine->VatRate > 0) {
+
+              /*
+
+                 $priceWithVAT = $documentLine->PriceWithTax;
+
+               if ($documentLine->VatRate > 0) {
                     $priceNoVat = $priceWithVAT / ((float) '1.'.(int) $documentLine->VatRate);
                 } else {
                     $priceNoVat = $documentLine->PriceWithTax;

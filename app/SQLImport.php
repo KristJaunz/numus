@@ -6,6 +6,7 @@ use App\Models\Jumis\StoreDoc;
 use App\Models\Jumis\StoreDocLine;
 use App\Models\Jumis\Structures\DocumentStatus;
 use App\Models\Jumis\Structures\DocumentType;
+use App\Models\Settings;
 use App\Models\Shop;
 use App\Models\Tender;
 use Illuminate\Database\QueryException;
@@ -61,7 +62,7 @@ class SQLImport
         $storeAddress = $shop->address;
         $storeOutId = $shop->partner_id;
         $docStatus = DocumentStatus::STARTED->value;
-        $companyVat = '40103127729';
+        $companyVat = Settings::read('company_reg_nr','40103127729');
 
         $connection = DB::connection('sqlsrv');
 
@@ -102,30 +103,44 @@ class SQLImport
                 foreach ($record->docLines as $line) {
 
 
-                  /*  $documentLine->Price = $priceNoVat;
+                    $product = $line->i;
+                    $quantity = $line->q;
+                    $catalogPrice = $line->pb;
+                    $taxRate = $line->r;
+                    $priceWithTaxAndDiscount = $line->p;
+                    $discount = $this->getDiscount($line->d);
+                    $shop = $storeOutId;
+
+                    if ($line->i == '17240') {
+                        $taxRate = 0;
+                    }
+
+
+                  /*$documentLine->Price = $priceNoVat;
                     $documentLine->PriceLVL = $priceNoVat;
                     $documentLine->PriceWithTax = $priceWithVAT;*/
 
-                    $priceNoVat = $line->pb / ((float) '1.'.(int) $line->r);
 
-                    $s = StoreDocLine::create([
+                    if ($taxRate > 0) {
+                        $priceNoVat = $catalogPrice / ((float) '1.'.(int) $taxRate);
+                    } else {
+                        $priceNoVat = $catalogPrice;
+                    }
+
+                    StoreDocLine::create([
                         'StoreDocID' => $storeDocID,
-                        'ProductID' => $line->i,
-                        'Quantity' => $line->q,
+                        'ProductID' => $product,
+                        'Quantity' => $quantity,
 
                         'Price' => $priceNoVat,
                         'PriceLVL' => $priceNoVat,
-                        'VatRate' => $line->r,
 
-                        'DiscountPercent' => (float) $line->d > 0 ? number_format((float) $line->d,4) : null,
-                        'PriceWithTax' => $line->p,
+                        'VatRate' => $taxRate,
 
-
-                        'StoreOutID' => $storeOutId,
+                        'DiscountPercent' => $discount,
+                        'PriceWithTax' => $priceWithTaxAndDiscount,
+                        'StoreOutID' => $shop,
                     ]);
-
-
-
 
                 }
 
@@ -293,14 +308,10 @@ class SQLImport
         return false;
     }
 
-    public function getPrice(float $price, $discount): float
-    {
-        return round($price - ($price * ($discount / 100)),4);
-    }
 
-    public function getDiscount(float $price, $discount): float
+    public function getDiscount($discount)
     {
-        return round(($price * ($discount / 100)),4);
+        return (float) $discount > 0 ? number_format((float) $discount,4) : null;
     }
 
 }
