@@ -6,6 +6,7 @@ use App\Models\Jumis\StoreDoc;
 use App\Models\Jumis\StoreDocLine;
 use App\Models\Jumis\Structures\DocumentStatus;
 use App\Models\Jumis\Structures\DocumentType;
+use App\Models\Product;
 use App\Models\Settings;
 use App\Models\Shop;
 use App\Models\Tender;
@@ -62,9 +63,13 @@ class SQLImport
         $storeAddress = $shop->address;
         $storeOutId = $shop->partner_id;
         $docStatus = DocumentStatus::STARTED->value;
-        $companyVat = Settings::read('company_reg_nr','40103127729');
+        $companyVat = Settings::read('company_reg_no');
 
         $connection = DB::connection('sqlsrv');
+
+
+        $productConf = Product::read($record->i);
+
 
         while ($attempt < self::MAX_RETRIES) {
 
@@ -111,9 +116,16 @@ class SQLImport
                     $discount = $this->getDiscount($line->d);
                     $shop = $storeOutId;
 
-                    if ($line->i == '17240') {
-                        $taxRate = 0;
+
+                    if ($productConf !== null) {
+                        if ($productConf->tax_rate >= 0) {
+                            $taxRate = $productConf->tax_rate;
+                        }
+                        elseif ($productConf->tax_rate == 'n/a') {
+                            $taxRate = null;
+                        }
                     }
+
 
 
                   /*$documentLine->Price = $priceNoVat;
