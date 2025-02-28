@@ -23,6 +23,6 @@ class Product extends Model
 
     public function product()
     {
-        return $this->belongsTo(Product::class, 'product_id', 'ProductID');
+        return $this->belongsTo(\App\Models\Jumis\Product::class, 'product_id', 'ProductID');
     }
 }
