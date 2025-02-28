@@ -34,7 +34,7 @@ class ProductResource extends Resource
                     ->label('Prece')
                     ->searchable()
                     ->getSearchResultsUsing(fn(string $search): array => \App\Models\Jumis\Product::where('ProductName', 'like', "%{$search}%")->limit(50)->pluck('ProductName', 'ProductID')->toArray())
-                    ->getOptionLabelsUsing(fn(array $values): array => \App\Models\Jumis\Product::whereIn('ProductID', $values)->pluck('ProductName', 'ProductID')->toArray())
+                    ->getOptionLabelsUsing(fn(array $values): array => \App\Models\Jumis\Product::whereIn('ProductID', $values)->pluck('ProductID', ''ProductName)->toArray())
                     ->nullable(),
 
                 Forms\Components\TextInput::make('tax_rate')
