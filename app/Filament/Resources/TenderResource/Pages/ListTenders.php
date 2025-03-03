@@ -200,7 +200,7 @@ class ListTenders extends ListRecords
     protected function getHeaderWidgets(): array
     {
         return [
-            TenderStatsOverview::class,
+           // TenderStatsOverview::class,
         ];
     }
 
