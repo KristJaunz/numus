@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\TenderResource\Pages;
 
 use App\Filament\Resources\TenderResource;
+use App\Filament\Resources\TenderResource\Widgets\TenderStatsOverview;
 use App\Models\Tender;
 use App\SQLImport;
 use Filament\Actions;
@@ -194,6 +195,13 @@ class ListTenders extends ListRecords
 
             }
         }
+    }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            TenderStatsOverview::class,
+        ];
     }
 
 }

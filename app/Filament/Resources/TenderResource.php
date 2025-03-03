@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\TenderResource\Pages;
 use App\Filament\Resources\TenderResource\RelationManagers;
 use App\Filament\Resources\TenderResource\RelationManagers\DocLinesRelationManager;
+use App\Filament\Resources\TenderResource\Widgets\TenderStatsOverview;
 use App\Models\Tender;
 use App\SQLImport;
 use Filament\Forms;
@@ -80,6 +81,12 @@ class TenderResource extends Resource
                     ->toggleable()
                     ->searchable(true,isIndividual: true)
                     ->sortable(),
+
+                TextColumn::make('partner_id')->label('Partneris')
+                    ->toggleable()
+                    ->searchable(true,isIndividual: true)
+                    ->sortable(),
+
 
                 TextColumn::make('last_receipt_no')->label('Kases Nr.')
                     ->toggleable()
@@ -236,6 +243,8 @@ class TenderResource extends Resource
             'index' => Pages\ListTenders::route('/'),
         ];
     }
+
+
 
 
 }
