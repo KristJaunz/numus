@@ -1,14 +1,14 @@
 <?php
 
-namespace App;
+namespace App\Components;
 
 use App\Models\DocLine;
 use App\Models\Tender;
+use Exception;
 use Illuminate\Support\Facades\DB;
 use SimpleXMLElement;
-use Exception;
 
-class ProcessXML
+class ProcessTenderXML
 {
     public static function run($xmlString, $file)
     {

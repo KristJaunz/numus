@@ -2,33 +2,19 @@
 
 namespace App\Filament\Resources;
 
+use App\Components\DB\TenderImport;
 use App\Filament\Resources\TenderResource\Pages;
-use App\Filament\Resources\TenderResource\RelationManagers;
 use App\Filament\Resources\TenderResource\RelationManagers\DocLinesRelationManager;
-use App\Filament\Resources\TenderResource\Widgets\TenderStatsOverview;
 use App\Models\Tender;
-use App\SQLImport;
 use Filament\Forms;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Grid;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Form;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
-use Filament\Support\Enums\MaxWidth;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
-use Filament\Tables\Actions\Modal\Actions\ButtonAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\HtmlString;
 
 class TenderResource extends Resource
 {
@@ -185,7 +171,7 @@ class TenderResource extends Resource
                     ->label('Sūtīt')
                     ->action(function ($record) {
 
-                        $import = new SQLImport();
+                        $import = new TenderImport();
 
                         return $import->importStoreDocWithRetries($record);
                     }),
@@ -204,7 +190,7 @@ class TenderResource extends Resource
                     ->label('Sūtīt')
                     ->action(function ($records) {
 
-                        $import = new SQLImport();
+                        $import = new TenderImport();
 
                         foreach ($records as $record) {
                             $import->importStoreDocWithRetries($record);

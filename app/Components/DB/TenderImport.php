@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Components\DB;
 
 use App\Models\Jumis\StoreDoc;
 use App\Models\Jumis\StoreDocLine;
@@ -14,12 +14,10 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
-//use App\Mail\TransactionFailureMail; // Example mail class
 
-class SQLImport
+
+class TenderImport
 {
-
     const MAX_RETRIES = 3;
     const DB_CATCHUP_DELAY = 3;
 
@@ -31,9 +29,7 @@ class SQLImport
 
     public  function importStoreDocWithRetries(Tender $record):bool
     {
-
         $isDeleted = Tender::select('deleted_at','id')->where('id', $record->delete())->withTrashed()->first();
-
 
         if ($isDeleted !== null) {
             if ($isDeleted->deleted_at !== null) {
@@ -41,8 +37,6 @@ class SQLImport
                 return false;
             }
         }
-
-
 
         if (!$record->doc_no || !$record->doc_no_serial || !$record->doc_date) {
             \App\Models\Log::write($record,'Nav nepieciešamie lauki darijuma ierakstā. Pārtraucam importu');
@@ -72,7 +66,6 @@ class SQLImport
             return false;
         }
 
-
         $storeAddress = $shop->address;
         $storeOutId = $shop->partner_id;
         $docStatus = DocumentStatus::STARTED->value;
@@ -91,9 +84,7 @@ class SQLImport
             try {
 
                 $connection->beginTransaction();
-
-                // Insert StoreDoc
-
++
                 $storeDoc = StoreDoc::create([
                     'DocNo' => $record->doc_no,
                     'DocNoSerial' => $record->doc_no_serial,
@@ -190,7 +181,7 @@ class SQLImport
                     $this->cleanupPartialTransaction($storeDocID,$record, $identifier);
                 }
 
-                if ($this->isRetryableError($e)) {
+                if (SqlServer::isRetryableError($e)) {
                     $attempt++;
                     $delay = min(self::RETRY_DELAY * pow(self::BACKOFF_FACTOR, $attempt), self::MAX_DELAY);
 
@@ -303,34 +294,13 @@ class SQLImport
             'storeDocData' => json_encode($storeDocData),
         ];
 
-        // Send an email alert to administrators about the failure
-        try {
+        try
+        {
           //  Mail::to('admin@example.com')->send(new TransactionFailureMail($emailData));
-        } catch (\Exception $mailException) {
+        }
+        catch (\Exception $mailException) {
             Log::error("Failed to send failure alert email: " . $mailException->getMessage());
         }
-    }
-
-
-    private function isRetryableError(QueryException $e): bool
-    {
-        $errorCodes = [
-            '1205',     // Deadlock
-            '10060',    // Timeout
-            '10061',    // Network error
-            '4060',     // Database not available
-            '20000'     // Lock wait timeout exceeded (can vary)
-        ];
-
-        if (in_array($e->getCode(), $errorCodes)) {
-            return true;
-        }
-
-        if (str_contains($e->getMessage(), 'deadlock') || str_contains($e->getMessage(), 'timeout')) {
-            return true;
-        }
-
-        return false;
     }
 
 

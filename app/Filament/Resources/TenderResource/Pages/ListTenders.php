@@ -2,17 +2,12 @@
 
 namespace App\Filament\Resources\TenderResource\Pages;
 
+use App\Components\DB\TenderImport;
 use App\Filament\Resources\TenderResource;
-use App\Filament\Resources\TenderResource\Widgets\TenderStatsOverview;
 use App\Models\Tender;
-use App\SQLImport;
-use Filament\Actions;
 use Filament\Resources\Components\Tab;
 use Filament\Resources\Pages\ListRecords;
-use Filament\Support\Enums\MaxWidth;
-use Filament\Tables\Actions\Action;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\HtmlString;
 
 class ListTenders extends ListRecords
@@ -46,7 +41,7 @@ class ListTenders extends ListRecords
                     Tender::with('docLines')->whereNull('deleted_at')->chunk(100, function ($tenders) {
                         foreach ($tenders as $tender) {
 
-                            $new = new SQLImport();
+                            $new = new TenderImport();
 
                             $new->importStoreDocWithRetries($tender);
 

@@ -14,7 +14,7 @@ class Log extends Model
         return $this->belongsTo(Tender::class)->withTrashed();
     }
 
-    public static function write(Tender $tender, $message)
+    public static function write(?Tender $tender, $message)
     {
         try
         {
@@ -28,7 +28,7 @@ class Log extends Model
 
         }
 
-        \Illuminate\Support\Facades\Log::error($message,$tender->toArray());
+        \Illuminate\Support\Facades\Log::channel('numus')->error($message,$tender->toArray());
     }
 }
 
