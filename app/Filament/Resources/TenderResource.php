@@ -190,14 +190,6 @@ class TenderResource extends Resource
                         return $import->importStoreDocWithRetries($record);
                     }),
 
-                Action::make('runConfirmDocuments')
-                    ->label('Run Confirm Documents')
-                    ->action(function () {
-                        ConfirmDocuments::dispatch();
-                    })
-                    ->requiresConfirmation()
-                    ->color('success')
-                    ->icon('heroicon-o-check'),
 
             ])
             ->groups([

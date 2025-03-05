@@ -4,9 +4,11 @@ namespace App\Filament\Resources\TenderResource\Pages;
 
 use App\Components\DB\TenderImport;
 use App\Filament\Resources\TenderResource;
+use App\Jobs\ConfirmDocuments;
 use App\Models\Tender;
 use Filament\Resources\Components\Tab;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Tables\Actions\Action;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\HtmlString;
 
@@ -48,7 +50,17 @@ class ListTenders extends ListRecords
                         }
                     });
 
+                }),
+
+            Action::make('runConfirmDocuments')
+                ->label('Apstiprināt')
+                ->action(function () {
+                    ConfirmDocuments::dispatch();
                 })
+                ->requiresConfirmation()
+                ->color('success')
+                ->icon('heroicon-o-check'),
+
         ];
     }
 
