@@ -84,7 +84,7 @@ class TenderImport
             try {
 
                 $connection->beginTransaction();
-+
+
                 $storeDoc = StoreDoc::create([
                     'DocNo' => $record->doc_no,
                     'DocNoSerial' => $record->doc_no_serial,
