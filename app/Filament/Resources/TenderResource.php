@@ -184,7 +184,7 @@ class TenderResource extends Resource
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
                // Tables\Actions\ForceDeleteBulkAction::make(),
-                //Tables\Actions\RestoreBulkAction::make(),
+                Tables\Actions\RestoreBulkAction::make(),
 
                 Tables\Actions\BulkAction::make('Send')
                     ->label('Sūtīt')
