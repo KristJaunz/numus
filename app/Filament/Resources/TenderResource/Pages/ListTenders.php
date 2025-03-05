@@ -52,7 +52,7 @@ class ListTenders extends ListRecords
 
                 }),
 
-            Action::make('runConfirmDocuments')
+            \Filament\Actions\Action::make('runConfirmDocuments')
                 ->label('Apstiprināt')
                 ->action(function () {
                     ConfirmDocuments::dispatch();
