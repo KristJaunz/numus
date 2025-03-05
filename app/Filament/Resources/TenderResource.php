@@ -7,6 +7,7 @@ use App\Filament\Resources\TenderResource\Pages;
 use App\Filament\Resources\TenderResource\RelationManagers\DocLinesRelationManager;
 use App\Models\Tender;
 use Filament\Forms;
+use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Infolists\Infolist;
 use Filament\Resources\Resource;
@@ -50,6 +51,7 @@ class TenderResource extends Resource
                     ->toggleable()
                     ->searchable(true,isIndividual: true)
                     ->sortable()
+
                     ->toggledHiddenByDefault(),
 
                 TextColumn::make('file')
@@ -127,6 +129,17 @@ class TenderResource extends Resource
             ])
             ->filters([
                 Tables\Filters\TrashedFilter::make(),
+                Filter::make('store_doc_id')
+                    ->form([
+                        TextInput::make('store_doc_id')
+                            ->label('Store Doc ID')
+                            ->placeholder('Enter Store Doc ID'),
+                    ])
+                    ->query(function ($query, array $data) {
+                        if (!empty($data['store_doc_id'])) {
+                            $query->where('store_doc_id', $data['store_doc_id']);
+                        }
+                    }),
                 Filter::make('date_range')
                     ->form([
                         Forms\Components\DatePicker::make('created_from')
