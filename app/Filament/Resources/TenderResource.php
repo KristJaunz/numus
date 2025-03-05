@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Components\DB\TenderImport;
 use App\Filament\Resources\TenderResource\Pages;
 use App\Filament\Resources\TenderResource\RelationManagers\DocLinesRelationManager;
+use App\Jobs\ConfirmDocuments;
 use App\Models\Tender;
 use Filament\Forms;
 use Filament\Forms\Components\TextInput;
@@ -188,6 +189,15 @@ class TenderResource extends Resource
 
                         return $import->importStoreDocWithRetries($record);
                     }),
+
+                Action::make('runConfirmDocuments')
+                    ->label('Run Confirm Documents')
+                    ->action(function () {
+                        ConfirmDocuments::dispatch();
+                    })
+                    ->requiresConfirmation()
+                    ->color('success')
+                    ->icon('heroicon-o-check'),
 
             ])
             ->groups([

@@ -21,14 +21,14 @@ class ConfirmDocuments implements ShouldQueue
             $shops = Shop::list();
 
             foreach ($shops as $shop) {
-                $documents = StoreDoc::where('DocNoSerial', $shop->doc_serial)
+                StoreDoc::where('DocNoSerial', $shop->doc_serial)
                     ->with('lines')
                     ->where('DocStatus', DocumentStatus::STARTED->value)
-                    ->get();
-
-                foreach ($documents as $document) {
-                    $this->processDocument($document);
-                }
+                    ->chunk(100,function ($documents) {
+                        foreach ($documents as $document) {
+                            $this->processDocument($document);
+                        }
+                    });
             }
         } catch (\Throwable $e) {
             Log::write(null, "Neparedzēta kļūda apstrādājot dokumentus veikalā {$shop->id}: {$e->getMessage()}");
@@ -83,13 +83,13 @@ class ConfirmDocuments implements ShouldQueue
 
         while ($attempt < $maxRetries) {
             try {
-                $line->DocStatus = DocumentStatus::CONFIRMED->value;
+                $line->LinkedLine = 1;
                 $line->save();
                 return true; // Success.
             } catch (QueryException $e) {
                 if (SqlServer::isRetryableError($e)) {
                     $attempt++;
-                    $this->logRetry("rinda", $line->id, $attempt);
+                    $this->logRetry("rinda", $line->id, $attempt,null);
                     $this->exponentialBackoff($attempt);
                 } else {
                     Log::write(null, "Neatjaunojama kļūda apstiprinot rindu {$line->id} ({$line->DocNoSerial}-{$line->DocNo}): {$e->getMessage()}");
@@ -118,7 +118,7 @@ class ConfirmDocuments implements ShouldQueue
             } catch (QueryException $e) {
                 if (SqlServer::isRetryableError($e)) {
                     $attempt++;
-                    $this->logRetry("dokumenta statusa atjaunināšana", $document->id, $attempt);
+                    $this->logRetry("dokumenta statusa atjaunināšana", $document->id, $attempt,$document);
                     $this->exponentialBackoff($attempt);
                 } else {
                     Log::write(null, "Neatjaunojama kļūda atjauninot dokumenta {$document->id} ({$document->DocNoSerial}-{$document->DocNo}) statusu: {$e->getMessage()}");
@@ -136,7 +136,7 @@ class ConfirmDocuments implements ShouldQueue
 
     protected function logRetry(string $type, $id, int $attempt): void
     {
-        Log::write(null, "Atkārtojam {$type} ID: {$id} ({$document->DocNoSerial}-{$document->DocNo}), mēģinājums: {$attempt}");
+        Log::write(null, "Atkārtojam {$type} ID: {$id} , mēģinājums: {$attempt}");
     }
 
     protected function exponentialBackoff(int $attempt): void
