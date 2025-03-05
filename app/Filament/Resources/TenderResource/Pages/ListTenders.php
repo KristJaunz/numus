@@ -22,7 +22,7 @@ class ListTenders extends ListRecords
             //Actions\CreateAction::make(),
 
             \Filament\Actions\Action::make('preview_duplicates')
-                ->label('Apskatīt & dzēst dublikātus')
+                ->label('Dublikāti')
                 ->icon('heroicon-o-eye')
                 ->modalHeading('Dublikātu pārskats')
                 ->modalDescription('Šie ir dublikāti, kas tiks dzēsti. Ar pirmo dublikātu tiks paturēts, bet pārējie tiks dzēsti')
