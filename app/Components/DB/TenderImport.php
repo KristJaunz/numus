@@ -29,14 +29,14 @@ class TenderImport
 
     public  function importStoreDocWithRetries(Tender $record):bool
     {
-        $isDeleted = Tender::select('deleted_at','id')->where('id', $record->delete())->withTrashed()->first();
+/*        $isDeleted = Tender::select('deleted_at','id')->where('id', $record->delete())->withTrashed()->first();
 
         if ($isDeleted !== null) {
             if ($isDeleted->deleted_at !== null) {
                 \App\Models\Log::write($record,'Ieraksts jau ir importēts!');
                 return false;
             }
-        }
+        }*/
 
         if (!$record->doc_no || !$record->doc_no_serial || !$record->doc_date) {
             \App\Models\Log::write($record,'Nav nepieciešamie lauki darijuma ierakstā. Pārtraucam importu');
