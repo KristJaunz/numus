@@ -23,6 +23,7 @@ class ListTenders extends ListRecords
 
             \Filament\Actions\Action::make('preview_duplicates')
                 ->label('Dublikāti')
+                ->color('danger')
                 ->icon('heroicon-o-eye')
                 ->modalHeading('Dublikātu pārskats')
                 ->modalDescription('Šie ir dublikāti, kas tiks dzēsti. Ar pirmo dublikātu tiks paturēts, bet pārējie tiks dzēsti')
