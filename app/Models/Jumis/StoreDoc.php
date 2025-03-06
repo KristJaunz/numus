@@ -77,9 +77,9 @@ class StoreDoc extends Jumis
         return $this->hasMany(StoreDocLine::class,'StoreDocID','StoreDocID');
     }
 
-    public function storeDocLines()
+    public function storeDocLine()
     {
-        return $this->lines();
+        return $this->hasMany(StoreDocLine::class,'StoreDocID','StoreDocID');
     }
 
     public static function serialsList(): array {
