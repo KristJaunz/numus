@@ -35,61 +35,71 @@ class LogResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+
             ->columns([
+
+
 
                 Tables\Columns\TextColumn::make('tender.store_doc_id')
                     ->sortable()
                     ->searchable(isIndividual: true)
                     ->toggleable()
-                    ->label('Jumis dok. ID'),
+                    ->label('Jumis dok. ID')
+                    ->copyable(),
 
                 Tables\Columns\TextColumn::make('tender.file')
                     ->sortable()
                     ->searchable(isIndividual: true)
                     ->toggleable()
-                    ->label('Fails'),
+                    ->label('Fails')
+                    ->copyable(),
                 Tables\Columns\TextColumn::make('tender.doc_no_serial')
                     ->sortable()
                     ->searchable()
                     ->toggleable()
-                    ->label('Sērija'),
+                    ->label('Sērija')
+                    ->copyable(),
                 Tables\Columns\TextColumn::make('tender.doc_no')
                     ->sortable()
                     ->searchable(isIndividual: true)
                     ->toggleable()
-                    ->label('Dokumenta numurs'),
+                    ->label('Dokumenta numurs')
+                    ->copyable(),
                 Tables\Columns\TextColumn::make('message')
                     ->sortable()
                     ->searchable(isIndividual: true)
                     ->toggleable()
                     ->wrap()
-                    ->label('Ziņojums'),
+                    ->label('Ziņojums')
+                    ->copyable(),
 
                 TextColumn::make('created_at')
                     ->toggleable()
                     ->sortable()
                     ->toggledHiddenByDefault()
-                    ->label('Pievienots'),
+                    ->label('Pievienots')
+                    ->copyable(),
 
                 TextColumn::make('updated_at')
                     ->toggleable()
                     ->sortable()
                     ->toggledHiddenByDefault()
-                    ->label('Labots'),
+                    ->label('Labots')
+                    ->copyable(),
 
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+              //  Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make()
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])->orderBy('id','desc');
     }
 
     public static function getRelations(): array
@@ -103,8 +113,8 @@ class LogResource extends Resource
     {
         return [
             'index' => Pages\ListLogs::route('/'),
-            'create' => Pages\CreateLog::route('/create'),
-            'edit' => Pages\EditLog::route('/{record}/edit'),
+           // 'create' => Pages\CreateLog::route('/create'),
+           // 'edit' => Pages\EditLog::route('/{record}/edit'),
         ];
     }
 }

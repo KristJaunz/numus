@@ -213,7 +213,8 @@ class TenderResource extends Resource
 
                     }),
             ])
-            ->filtersLayout(Tables\Enums\FiltersLayout::Modal);
+            ->filtersLayout(Tables\Enums\FiltersLayout::Modal)
+            ->orderBy('id','desc');
     }
 
     public static function infolist(Infolist $infolist): Infolist
