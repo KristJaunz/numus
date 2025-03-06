@@ -22,27 +22,43 @@ class ConfirmDocuments implements ShouldQueue
             $shops = Shop::list();
 
             foreach ($shops as $shop) {
-                StoreDoc::where('DocNoSerial', $shop->doc_serial)
-                    ->with('lines')
-                    ->where('DocStatus', DocumentStatus::STARTED->value)
-                    ->chunk(Settings::read('doc_confirm_chunk',100),function ($documents) {
-                        foreach ($documents as $document) {
+                $lastId = 0; // Start from 0 to get all rows in the first chunk
+                $chunkSize = Settings::read('doc_confirm_chunk', 100); // Read your setting for chunk size
 
-                            if ($this->confirmDocument($document, DocumentStatus::CONFIRMED->value)) {
-                                Log::write(null, "Dokuments ({$document->DocNoSerial}-{$document->DocNo}) veiksmīgi apstiprināts.");
-                                return;
-                            }
+                do {
+                    $documents = StoreDoc::where('DocNoSerial', $shop->doc_serial)
+                        ->with('lines')
+                        ->where('DocStatus', DocumentStatus::STARTED->value)
+                        ->where('StoreDocID', '>', $lastId) // Manual chunking (works in SQL Server 2010)
+                        ->orderBy('StoreDocID', 'asc') // Ensure ordered processing
+                        ->limit($chunkSize) // Works as TOP in old SQL Server
+                        ->get();
 
-                            Log::write(null, "Dokuments ({$document->DocNoSerial}-{$document->DocNo}) neizdevās apstiprināt. Mēģinam daļēju apstiprināšanu!");
+                    if ($documents->isEmpty()) {
+                        break; // No more documents found, end the loop
+                    }
 
-                            $this->confirmAllLines($document);
-
-                            $document->DocStatus = DocumentStatus::ENTERED;
-                            $document->save();
-
-                            Log::write(null, "Dokuments ({$document->DocNoSerial}-{$document->DocNo}) apstrādāts daļēji!");
+                    foreach ($documents as $document) {
+                        if ($this->confirmDocument($document, DocumentStatus::CONFIRMED->value)) {
+                            Log::write(null, "Dokuments ({$document->DocNoSerial}-{$document->DocNo}) veiksmīgi apstiprināts.");
+                            continue; // Move to the next document
                         }
-                    });
+
+                        //Log::write(null, "Dokuments ({$document->DocNoSerial}-{$document->DocNo}) neizdevās apstiprināt. Mēģinam daļēju apstiprināšanu!");
+
+                        // Try partial confirmation
+                        $this->confirmAllLines($document);
+
+                        $document->DocStatus = DocumentStatus::ENTERED;
+                        $document->save();
+
+                        Log::write(null, "Dokuments ({$document->DocNoSerial}-{$document->DocNo}) apstrādāts daļēji!");
+                    }
+
+                    // Update last processed document ID to continue chunking
+                    $lastId = $documents->last()->StoreDocID;
+
+                } while (true); // Keep looping until no more documents are found
             }
         }
         catch (\Throwable $e)
