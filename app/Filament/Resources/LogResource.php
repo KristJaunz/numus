@@ -99,7 +99,7 @@ class LogResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ])->orderBy('id','desc');
+            ]);
     }
 
     public static function getRelations(): array
