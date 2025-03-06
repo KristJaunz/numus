@@ -259,19 +259,16 @@ class StoreDocResource extends Resource
             ->deferFilters()
             ->actions([
                 //  Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+              //  Tables\Actions\DeleteAction::make(),
 
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                 //   Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ])
             ->defaultGroup(Tables\Grouping\Group::make('DocNo')->label('Dokumenta Nr.'))
             ->paginated(false)
-            ->filtersApplyAction(  fn (Action $action) => $action
-                ->url(url()->current())
-                ->label('Save filters to table'))
             ->filtersLayout(Tables\Enums\FiltersLayout::AboveContent);
     }
 
