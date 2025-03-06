@@ -28,7 +28,13 @@ class Log extends Model
 
         }
 
-        \Illuminate\Support\Facades\Log::error($message,$tender?->toArray() ?? []);
+        if ($tender !== null) {
+            \Illuminate\Support\Facades\Log::error($message,$tender->toArray());
+            return;
+        }
+
+
+        \Illuminate\Support\Facades\Log::error($message);
     }
 
 
