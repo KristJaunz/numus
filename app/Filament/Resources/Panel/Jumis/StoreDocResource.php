@@ -36,7 +36,7 @@ class StoreDocResource extends Resource
             ->query(function () use ($docTypeDefault, $docNoSerialDefault, $docRangeEnd, $docRangeStart) {
                 return StoreDoc::query()
                     ->with(['storeDocType', 'storeDocType'])
-                    ->withSum('lines', 'AmountFinal')
+                    ->withSum('StoreDocLine', 'AmountFinal')
                     ->where('StoreDoc.StoreDocTypeID', $docTypeDefault)
                     ->whereDate('StoreDoc.DocDate', '>=', $docRangeStart)
                     ->whereDate('StoreDoc.DocDate', '<=', $docRangeEnd)
@@ -61,7 +61,7 @@ class StoreDocResource extends Resource
                     ->label('Veids')
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('line_sum_amount_final')
+                Tables\Columns\TextColumn::make('store_doc_line_sum_amount_final')
                     ->label('Summa')
                     ->sortable(),
 
@@ -269,6 +269,7 @@ class StoreDocResource extends Resource
             ])
             ->defaultGroup(Tables\Grouping\Group::make('DocNo')->label('Dokumenta Nr.'))
             ->paginated(false)
+
             ->filtersLayout(Tables\Enums\FiltersLayout::AboveContent);
     }
 

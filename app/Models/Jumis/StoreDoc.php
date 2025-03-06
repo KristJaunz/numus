@@ -77,6 +77,10 @@ class StoreDoc extends Jumis
         return $this->hasMany(StoreDocLine::class,'StoreDocID','StoreDocID');
     }
 
+    public function storeDocLines()
+    {
+        return $this->lines();
+    }
 
     public static function serialsList(): array {
         return Cache::remember('StoreDoc::listSerials',config('jumis.cache_time'),function () {
