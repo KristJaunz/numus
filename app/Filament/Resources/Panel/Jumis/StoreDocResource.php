@@ -264,7 +264,7 @@ class StoreDocResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]
+            ])
             ->defaultGroup(Tables\Grouping\Group::make('DocNo')->label('Dokumenta Nr.'))
             ->paginated(false)
             ->filtersApplyAction(  fn (Action $action) => $action
