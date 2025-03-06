@@ -10,6 +10,7 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -263,9 +264,12 @@ class StoreDocResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ])
+            ]
             ->defaultGroup(Tables\Grouping\Group::make('DocNo')->label('Dokumenta Nr.'))
             ->paginated(false)
+            ->filtersApplyAction(  fn (Action $action) => $action
+                ->url(url()->current())
+                ->label('Save filters to table'))
             ->filtersLayout(Tables\Enums\FiltersLayout::AboveContent);
     }
 
