@@ -33,7 +33,7 @@ class StoreDocResource extends Resource
             ->query(function () use ($docTypeDefault, $docNoSerialDefault, $docRangeEnd, $docRangeStart) {
                 return StoreDoc::query()
                     ->with(['storeDocType', 'storeDocType'])
-                    ->withSum('StoreDocLine', 'AmountFinal')
+                    ->withSum('lines', 'AmountFinal')
                     ->where('StoreDoc.StoreDocTypeID', $docTypeDefault)
                     ->whereDate('StoreDoc.DocDate', '>=', $docRangeStart)
                     ->whereDate('StoreDoc.DocDate', '<=', $docRangeEnd)
