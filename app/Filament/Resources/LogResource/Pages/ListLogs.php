@@ -27,10 +27,10 @@ class ListLogs extends ListRecords
         ];
 
         $tabs['Darījumi'] = Tab::make('Darījumi')
-            ->modifyQueryUsing(fn($query) => $query->whereNotNull('store_doc_id'));
+            ->modifyQueryUsing(fn($query) => $query->whereNotNull('tender_id'));
 
         $tabs['Apstiprināšana'] = Tab::make('Apstiprināšana')
-            ->modifyQueryUsing(fn($query) => $query->whereNull('store_doc_id'));
+            ->modifyQueryUsing(fn($query) => $query->whereNull('tender_id'));
 
         return $tabs;
 
