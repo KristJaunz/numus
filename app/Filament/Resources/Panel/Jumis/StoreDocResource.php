@@ -61,7 +61,7 @@ class StoreDocResource extends Resource
                     ->label('Veids')
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('lines_sum_amount_final')
+                Tables\Columns\TextColumn::make('line_sum_amount_final')
                     ->label('Summa')
                     ->sortable(),
 
