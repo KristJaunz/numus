@@ -25,6 +25,10 @@ class SqlServer
             return true;
         }
 
+        if (str_contains($e->getMessage(), 'Noliktavā nav pietiekošs preču daudzums!')) {
+            return false;
+        }
+
         return false;
     }
 

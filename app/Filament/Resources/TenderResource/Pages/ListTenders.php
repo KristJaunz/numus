@@ -5,6 +5,7 @@ namespace App\Filament\Resources\TenderResource\Pages;
 use App\Components\DB\TenderImport;
 use App\Filament\Resources\TenderResource;
 use App\Jobs\ConfirmDocuments;
+use App\Jobs\SyncTender;
 use App\Models\Tender;
 use Filament\Resources\Components\Tab;
 use Filament\Resources\Pages\ListRecords;
@@ -19,8 +20,6 @@ class ListTenders extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            //Actions\CreateAction::make(),
-
             \Filament\Actions\Action::make('preview_duplicates')
                 ->label('Dublikāti')
                 ->color('danger')
@@ -32,35 +31,26 @@ class ListTenders extends ListRecords
                 ->modalContent(fn() => self::getDuplicatesPreview())
                 ->action(fn() => self::deleteDuplicates()),
 
-            \Filament\Actions\Action::make('sync_sales_data')
+            \Filament\Actions\Action::make('synchronise_sales_documents')
                 ->label('Sinhronizēt')
                 ->icon('heroicon-o-arrow-path')
                 ->modalHeading('Pārdošanas datu sinhronizācija')
                 ->modalDescription('Šī darbība sinhronizēs pārdošanas datus ar Jumis sistēmu. Šī darbība nav atgriezeniska.')
                 ->modalSubmitActionLabel('Sinhronizēt')
                 ->modalCancelActionLabel('Atcelt')
-                ->action(fn() => function () {
-
-                    Tender::with('docLines')->whereNull('deleted_at')->chunk(100, function ($tenders) {
-                        foreach ($tenders as $tender) {
-
-                            $new = new TenderImport();
-
-                            $new->importStoreDocWithRetries($tender);
-
-                        }
-                    });
-
-                }),
-
-            \Filament\Actions\Action::make('runConfirmDocuments')
-                ->label('Apstiprināt')
-                ->action(function () {
-                    ConfirmDocuments::dispatch();
-                })
                 ->requiresConfirmation()
+                ->action(fn() => SyncTender::dispatch()),
+
+            \Filament\Actions\Action::make('confirm_sales_documents')
                 ->color('success')
-                ->icon('heroicon-o-check'),
+                ->icon('heroicon-o-check')
+                ->label('Apstiprināt')
+                ->modalHeading('Pārdošanas darījumu apstiprināšana')
+                ->modalDescription('Šī darbība apstiprinād pārdošanas darījumus Jumis sistēmā. Šī darbība nav atgriezeniska.')
+                ->modalSubmitActionLabel('Apstiprināt')
+                ->modalCancelActionLabel('Atcelt')
+                ->requiresConfirmation()
+                ->action(fn() => ConfirmDocuments::dispatch()),
 
         ];
     }

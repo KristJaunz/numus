@@ -18,7 +18,7 @@ class Product extends Model
 
     public static function read($key, $default = null)
     {
-        return self::list()[$key] ?? $default;
+        return self::list()->where('ProductID',$key)->first();
     }
 
     public function product()

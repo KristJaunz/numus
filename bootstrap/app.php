@@ -19,8 +19,8 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withSchedule(function (Schedule $schedule) {
-       /* $schedule->job(\App\Jobs\ConfirmDocuments::class)
-            ->dailyAt('23:00')
-            ->withoutOverlapping();*/
+        $schedule->job(\App\Jobs\CreateJumisCache::class)->dailyAt('7:00')->withoutOverlapping();
+        //$schedule->job(\App\Jobs\ConfirmDocuments::class)->dailyAt('23:00')->withoutOverlapping();
+
     })
     ->create();

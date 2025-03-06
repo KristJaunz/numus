@@ -19,7 +19,7 @@ class Log extends Model
         try
         {
             $log = new Log();
-            $log->tender_id = $tender->id;
+            $log->tender_id = $tender?->id;
             $log->message = $message;
             $log->save();
         }
@@ -28,7 +28,9 @@ class Log extends Model
 
         }
 
-        \Illuminate\Support\Facades\Log::channel('numus')->error($message,$tender->toArray());
+        \Illuminate\Support\Facades\Log::error($message,$tender?->toArray() ?? []);
     }
+
+
 }
 

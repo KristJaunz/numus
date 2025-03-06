@@ -6,6 +6,7 @@ use App\Components\DB\SqlServer;
 use App\Models\Jumis\StoreDoc;
 use App\Models\Jumis\Structures\DocumentStatus;
 use App\Models\Log;
+use App\Models\Settings;
 use App\Models\Shop;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\QueryException;
@@ -24,42 +25,31 @@ class ConfirmDocuments implements ShouldQueue
                 StoreDoc::where('DocNoSerial', $shop->doc_serial)
                     ->with('lines')
                     ->where('DocStatus', DocumentStatus::STARTED->value)
-                    ->chunk(100,function ($documents) {
+                    ->chunk(Settings::read('doc_confirm_chunk',100),function ($documents) {
                         foreach ($documents as $document) {
-                            $this->processDocument($document);
+
+                            if ($this->confirmDocument($document, DocumentStatus::CONFIRMED->value)) {
+                                Log::write(null, "Dokuments ({$document->DocNoSerial}-{$document->DocNo}) veiksmīgi apstiprināts.");
+                                return;
+                            }
+
+                            Log::write(null, "Dokuments ({$document->DocNoSerial}-{$document->DocNo}) neizdevās apstiprināt. Mēģinam daļēju apstiprināšanu!");
+
+                            $this->confirmAllLines($document);
+
+                            $document->DocStatus = DocumentStatus::ENTERED;
+                            $document->save();
+
+                            Log::write(null, "Dokuments ({$document->DocNoSerial}-{$document->DocNo}) apstrādāts daļēji!");
                         }
                     });
             }
-        } catch (\Throwable $e) {
-            Log::write(null, "Neparedzēta kļūda apstrādājot dokumentus veikalā {$shop->id}: {$e->getMessage()}");
+        }
+        catch (\Throwable $e)
+        {
+            Log::write(null, "Neparedzēta kļūda apstrādājot dokumentus veikalā {$shop->doc_serial}: {$e->getMessage()}");
             $this->fail($e);
         }
-    }
-
-    protected function processDocument($document): void
-    {
-        if ($this->confirmDocument($document)) {
-            Log::write(null, "Dokuments {$document->id} ({$document->DocNoSerial}-{$document->DocNo}) veiksmīgi apstiprināts.");
-            return; // All good — nothing more to do.
-        }
-
-        Log::write(null, "Dokumentam {$document->id} ({$document->DocNoSerial}-{$document->DocNo}) neizdevās apstiprināt. Mēģinu apstiprināt katru rindu atsevišķi.");
-
-        $allLinesConfirmed = $this->confirmAllLines($document);
-
-        $document->DocStatus = DocumentStatus::ENTERED;
-        $document->save();
-
-        if ($allLinesConfirmed) {
-            Log::write(null, "Visas rindas dokumentam {$document->id} ({$document->DocNoSerial}-{$document->DocNo}) apstiprinātas, dokuments iestatīts uz ENTERED.");
-        } else {
-            Log::write(null, "Ne visas rindas dokumentam {$document->id} ({$document->DocNoSerial}-{$document->DocNo}) varēja apstiprināt, dokuments iestatīts uz ENTERED.");
-        }
-    }
-
-    protected function confirmDocument($document): bool
-    {
-        return $this->updateDocumentStatusWithRetry($document, DocumentStatus::CONFIRMED->value);
     }
 
     protected function confirmAllLines($document): bool
@@ -67,7 +57,7 @@ class ConfirmDocuments implements ShouldQueue
         $allSuccessful = true;
 
         foreach ($document->lines as $line) {
-            $confirmed = $this->confirmLine($line);
+            $confirmed = $this->confirmLine($document,$line);
             if (!$confirmed) {
                 $allSuccessful = false;
             }
@@ -76,7 +66,7 @@ class ConfirmDocuments implements ShouldQueue
         return $allSuccessful;
     }
 
-    protected function confirmLine($line): bool
+    protected function confirmLine($document,$line): bool
     {
         $attempt = 0;
         $maxRetries = 3;
@@ -85,46 +75,52 @@ class ConfirmDocuments implements ShouldQueue
             try {
                 $line->LinkedLine = 1;
                 $line->save();
-                return true; // Success.
-            } catch (QueryException $e) {
-                if (SqlServer::isRetryableError($e)) {
+                return true;
+            }
+            catch (QueryException $e) {
+                if (SqlServer::isRetryableError($e))
+                {
                     $attempt++;
-                    $this->logRetry("rinda", $line->id, $attempt,null);
-                    $this->exponentialBackoff($attempt);
-                } else {
-                    Log::write(null, "Neatjaunojama kļūda apstiprinot rindu {$line->id} ({$line->DocNoSerial}-{$line->DocNo}): {$e->getMessage()}");
+                    $this->pauseExecution($attempt);
+                }
+                else
+                {
                     return false;
                 }
-            } catch (\Exception $e) {
-                Log::write(null, "Neparedzēta kļūda apstiprinot rindu {$line->id} ({$line->DocNoSerial}-{$line->DocNo}): {$e->getMessage()}");
+            }
+            catch (\Exception $e) {
                 return false;
             }
         }
-
-        Log::write(null, "Neizdevās apstiprināt rindu {$line->id} ({$line->DocNoSerial}-{$line->DocNo}) pēc {$maxRetries} mēģinājumiem.");
         return false;
     }
 
-    protected function updateDocumentStatusWithRetry($document, $status): bool
+    protected function confirmDocument($document, $status): bool
     {
         $attempt = 0;
         $maxRetries = 3;
 
-        while ($attempt < $maxRetries) {
-            try {
+        while ($attempt < $maxRetries)
+        {
+            try
+            {
                 $document->DocStatus = $status;
                 $document->save();
-                return true; // Success.
-            } catch (QueryException $e) {
+                return true;
+            }
+            catch (QueryException $e) {
                 if (SqlServer::isRetryableError($e)) {
                     $attempt++;
                     $this->logRetry("dokumenta statusa atjaunināšana", $document->id, $attempt,$document);
-                    $this->exponentialBackoff($attempt);
-                } else {
+                    $this->pauseExecution($attempt);
+                } else
+                {
                     Log::write(null, "Neatjaunojama kļūda atjauninot dokumenta {$document->id} ({$document->DocNoSerial}-{$document->DocNo}) statusu: {$e->getMessage()}");
                     return false;
                 }
-            } catch (\Exception $e) {
+            }
+            catch (\Exception $e)
+            {
                 Log::write(null, "Neparedzēta kļūda atjauninot dokumenta {$document->id} ({$document->DocNoSerial}-{$document->DocNo}) statusu: {$e->getMessage()}");
                 return false;
             }
@@ -134,15 +130,15 @@ class ConfirmDocuments implements ShouldQueue
         return false;
     }
 
-    protected function logRetry(string $type, $id, int $attempt): void
+    protected function logRetry(string $type, $id, int $attempt, $document): void
     {
         Log::write(null, "Atkārtojam {$type} ID: {$id} , mēģinājums: {$attempt}");
     }
 
-    protected function exponentialBackoff(int $attempt): void
+    protected function pauseExecution(int $attempt): void
     {
-        $baseDelay = 2; // seconds
-        $maxDelay = 30; // seconds
+        $baseDelay = 2;
+        $maxDelay = 30;
         $delay = min($baseDelay * pow(2, $attempt), $maxDelay);
         sleep($delay);
     }
