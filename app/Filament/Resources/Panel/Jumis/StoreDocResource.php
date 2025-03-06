@@ -21,6 +21,8 @@ class StoreDocResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?string $navigationLabel = 'Jumis Dublikāti';
+
     public static function table(Table $table): Table
     {
         $docRangeStart = request('tableFilters.date_range.created_from', today());
