@@ -35,6 +35,8 @@ class SyncTender implements ShouldQueue
         } catch (\Exception $e) {
             $this->fail($e);
         }
+
+        ConfirmDocuments::dispatch();
     }
 
     public function middleware(): array
