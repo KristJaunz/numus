@@ -39,8 +39,4 @@ class SyncTender implements ShouldQueue
         ConfirmDocuments::dispatch();
     }
 
-    public function middleware(): array
-    {
-        return [(new WithoutOverlapping('sync_tender'))->dontRelease()];
-    }
 }
