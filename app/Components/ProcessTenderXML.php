@@ -30,7 +30,7 @@ class ProcessTenderXML
                 'amount_cash' => (float) $xml->AmountCash,
                 'amount_card' => (float) $xml->AmountCard,
                 'tender_discount' => (float) $xml->TenderDiscount,
-                'last_receipt_no' => $xml->LastReceiptNo,
+                'last_receipt_no' => $xml->LastReceiptNo > 0 ? $xml->LastReceiptNo : null,
             ];
 
             // Insert the tender data
