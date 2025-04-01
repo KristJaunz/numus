@@ -121,14 +121,20 @@ class TenderImport
                     $shop = $storeOutId;
 
 
-              /*      if ($productConf !== null) {
-                        if ($productConf->tax_rate >= 0) {
-                            $taxRate = $productConf->tax_rate;
-                        }
-                        elseif ($productConf->tax_rate == 'n/a') {
-                            $taxRate = null;
-                        }
-                    }*/
+                    if ($line->i == '17240') {
+                        $taxRate = 0;
+
+                    }
+
+
+                        /*  if ($productConf !== null) {
+                              if ($productConf->tax_rate >= 0) {
+                                  $taxRate = $productConf->tax_rate;
+                              }
+                              elseif ($productConf->tax_rate == 'n/a') {
+                                  $taxRate = null;
+                              }
+                          }*/
 
 
 
