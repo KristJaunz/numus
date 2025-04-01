@@ -25,6 +25,13 @@ Route::middleware(['auth'])->group(function () {
     return response()->json(['status' => 'success', 'message' => 'Data received successfully']);
 });
 
+\Route::get('api/aaaaxxx34r3t4g334g4g3g34fgsdfsd/store-list/xw2rf3f', function () {
+
+    return response()->json(\App\Models\Shop::pluck('id','name')->toArray());
+});
+
+
+
 
 
 require __DIR__.'/auth.php';
