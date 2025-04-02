@@ -278,18 +278,27 @@ class TenderImport
                 $priceNoVat = $catalogPrice;
             }
 
-            dd(StoreDocLine::query()
+            $count = StoreDocLine::query()
                 ->where('StoreDocID', $storeDoc->StoreDocID)
                 ->where('ProductID', $product)
-                ->count());
-               /* ->update([
+                ->count();
+
+            if ($count !== 1) {
+                \App\Models\Log::write($record, $count.': Gandrīz dirsā ar: '. json_encode($line));
+                return false;
+            }
+
+            StoreDocLine::query()
+                ->where('StoreDocID', $storeDoc->StoreDocID)
+                ->where('ProductID', $product)
+                ->update([
                     'Quantity' => $quantity,
                     'Price' => $priceNoVat,
                     'PriceLVL' => $priceNoVat,
                     'VatRate' => $taxRate,
                     'DiscountPercent' => $discount,
                     'PriceWithTax' => $priceWithTaxAndDiscount,
-                ])*/;
+                ]);
 
         }
         return true;
