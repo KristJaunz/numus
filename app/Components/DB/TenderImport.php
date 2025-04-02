@@ -11,6 +11,7 @@ use App\Models\Settings;
 use App\Models\Shop;
 use App\Models\Tender;
 use Illuminate\Database\QueryException;
+use Illuminate\Session\Store;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -27,23 +28,23 @@ class TenderImport
 
     const BACKOFF_FACTOR = 2;
 
-    public  function importStoreDocWithRetries(Tender $record):bool
+    public function importStoreDocWithRetries(Tender $record): bool
     {
-        $isDeleted = Tender::select('deleted_at','id')->where('id', $record->id)->withTrashed()->first();
+        $isDeleted = Tender::select('deleted_at', 'id')->where('id', $record->id)->withTrashed()->first();
 
         if ($isDeleted !== null) {
             if ($isDeleted->deleted_at !== null) {
-                \App\Models\Log::write($record,'Ieraksts jau ir importēts!');
+                \App\Models\Log::write($record, 'Ieraksts jau ir importēts!');
                 return false;
             }
         }
 
         if (!$record->doc_no || !$record->doc_no_serial || !$record->doc_date) {
-            \App\Models\Log::write($record,'Nav nepieciešamie lauki darijuma ierakstā. Pārtraucam importu');
+            \App\Models\Log::write($record, 'Nav nepieciešamie lauki darijuma ierakstā. Pārtraucam importu');
             return false;
         }
 
-        $identifier = $record->file . ' : '. $record->doc_no_serial . ' - '. $record->doc_no;
+        $identifier = $record->file.' : '.$record->doc_no_serial.' - '.$record->doc_no;
 
         $attempt = 0;
 
@@ -51,7 +52,7 @@ class TenderImport
 
         if (str($record->doc_no_serial)->contains('Atgr.')) {
 
-            \App\Models\Log::write($record,'Darījums ir atgriešanas dokuments. Izlaižam.');
+            \App\Models\Log::write($record, 'Darījums ir atgriešanas dokuments. Izlaižam.');
             return false;
         }
 
@@ -62,7 +63,7 @@ class TenderImport
         }
 
         if (!$shop) {
-            \App\Models\Log::write($record,'Veikals ar šādu dokumenta sēriju nav atrasts.');
+            \App\Models\Log::write($record, 'Veikals ar šādu dokumenta sēriju nav atrasts.');
             return false;
         }
 
@@ -74,7 +75,7 @@ class TenderImport
         $connection = DB::connection('sqlsrv');
 
 
-       // $productConf = Product::read($record->i);
+        // $productConf = Product::read($record->i);
 
 
         while ($attempt < self::MAX_RETRIES) {
@@ -107,7 +108,7 @@ class TenderImport
 
                 $storeDocID = $storeDoc->StoreDocID;
 
-                $identifier = $storeDocID. " / " . $identifier;
+                $identifier = $storeDocID." / ".$identifier;
 
                 foreach ($record->docLines as $line) {
 
@@ -127,20 +128,19 @@ class TenderImport
                     }
 
 
-                        /*  if ($productConf !== null) {
-                              if ($productConf->tax_rate >= 0) {
-                                  $taxRate = $productConf->tax_rate;
-                              }
-                              elseif ($productConf->tax_rate == 'n/a') {
-                                  $taxRate = null;
-                              }
-                          }*/
+                    /*  if ($productConf !== null) {
+                          if ($productConf->tax_rate >= 0) {
+                              $taxRate = $productConf->tax_rate;
+                          }
+                          elseif ($productConf->tax_rate == 'n/a') {
+                              $taxRate = null;
+                          }
+                      }*/
 
 
-
-                  /*$documentLine->Price = $priceNoVat;
-                    $documentLine->PriceLVL = $priceNoVat;
-                    $documentLine->PriceWithTax = $priceWithVAT;*/
+                    /*$documentLine->Price = $priceNoVat;
+                      $documentLine->PriceLVL = $priceNoVat;
+                      $documentLine->PriceWithTax = $priceWithVAT;*/
 
 
                     if ($taxRate > 0) {
@@ -173,7 +173,7 @@ class TenderImport
 
                 $record->delete();
 
-                \App\Models\Log::write($record,'Darījums veiksmīgi importēts!');
+                \App\Models\Log::write($record, 'Darījums veiksmīgi importēts!');
 
                 return true;
             } catch (QueryException $e) {
@@ -182,20 +182,21 @@ class TenderImport
                 sleep(self::DB_CATCHUP_DELAY); // Allow DB to catch up
 
                 if (!$this->isTransactionConsistent($storeDocID, $record)) {
-                    \App\Models\Log::write($record,'Atrasti nepilnīgi dati darijumam . Notiek tīrīšana');
+                    \App\Models\Log::write($record, 'Atrasti nepilnīgi dati darijumam . Notiek tīrīšana');
 
-                    $this->cleanupPartialTransaction($storeDocID,$record, $identifier);
+                    $this->cleanupPartialTransaction($storeDocID, $record, $identifier);
                 }
 
                 if (SqlServer::isRetryableError($e)) {
                     $attempt++;
                     $delay = min(self::RETRY_DELAY * pow(self::BACKOFF_FACTOR, $attempt), self::MAX_DELAY);
 
-                    \App\Models\Log::write($record,"Notika kļūda no kuras var atgūties. Mēģinam velreiz ($attempt/". self::MAX_RETRIES .") pēc $delay sekundēm. Kļūda: {$e->getMessage()}");
+                    \App\Models\Log::write($record,
+                        "Notika kļūda no kuras var atgūties. Mēģinam velreiz ($attempt/".self::MAX_RETRIES.") pēc $delay sekundēm. Kļūda: {$e->getMessage()}");
 
                     if ($attempt >= self::MAX_RETRIES) {
 
-                        \App\Models\Log::write($record,"Maksimālais atkārtotu mēģinājumu skaits sasniegts");
+                        \App\Models\Log::write($record, "Maksimālais atkārtotu mēģinājumu skaits sasniegts");
 
 
                         $this->sendFailureAlert($record, $e);
@@ -204,26 +205,25 @@ class TenderImport
                     }
 
                     sleep($delay);
-                } else
-                {
-                    \App\Models\Log::write($record,"Atkārtoti neapstrādājama kļūda konstatēta. Kļūda: {$e->getMessage()}");
+                } else {
+                    \App\Models\Log::write($record,
+                        "Atkārtoti neapstrādājama kļūda konstatēta. Kļūda: {$e->getMessage()}");
 
                     $this->sendFailureAlert($record, $e);
                     return false;
                 }
-            }
-            catch (\Exception $e) {
+            } catch (\Exception $e) {
                 $connection->rollBack();
 
                 sleep(self::DB_CATCHUP_DELAY);
 
-                \App\Models\Log::write($record,"Konstatēta neparedzēta kļūda. Kļūda: {$e->getMessage()}");
+                \App\Models\Log::write($record, "Konstatēta neparedzēta kļūda. Kļūda: {$e->getMessage()}");
 
                 if (!$this->isTransactionConsistent($storeDocID, $record)) {
 
-                    \App\Models\Log::write($record,"Atrasti nepilnīgi dati darijumam . Notiek tīrīšana");
+                    \App\Models\Log::write($record, "Atrasti nepilnīgi dati darijumam . Notiek tīrīšana");
 
-                    $this->cleanupPartialTransaction($storeDocID, $record,$identifier);
+                    $this->cleanupPartialTransaction($storeDocID, $record, $identifier);
                 }
 
                 $this->sendFailureAlert($record, $e);
@@ -234,7 +234,68 @@ class TenderImport
         return false;
     }
 
-    function isTransactionConsistent($storeDocID,Tender $record): bool
+    public function resync(Tender $record): bool
+    {
+
+        if ($record->store_doc_id > 0 and !empty($record->store_doc_id)) {
+            \App\Models\Log::write($record, 'Ieraksts nav sinhronizēts!!');
+            return false;
+        }
+
+
+        $storeDoc = StoreDoc::where('StoreDocID', $record->store_doc_id)->first();
+
+        if ($storeDoc == null) {
+            \App\Models\Log::write($record, 'Darījums nav atrasts tildes jumī!!');
+            return false;
+        }
+
+        if ($storeDoc->DocStatus == 6) { // Kontēts
+            \App\Models\Log::write($record, 'Darījums ir kontēts');
+            return false;
+        }
+
+        $storeDoc->DocStatus = 1;
+        $storeDoc->save();
+
+
+        foreach ($record->docLines as $line) {
+
+            $product = $line->i;
+            $quantity = $line->q;
+            $catalogPrice = $line->pb;
+            $taxRate = $line->r;
+            $priceWithTaxAndDiscount = $line->p;
+            $discount = $this->getDiscount($line->d);
+
+            if ($line->i == '17240') {
+                $taxRate = 0;
+            }
+
+            if ($taxRate > 0) {
+                $priceNoVat = $catalogPrice / ((float) '1.'.(int) $taxRate);
+            } else {
+                $priceNoVat = $catalogPrice;
+            }
+
+            StoreDocLine::query()
+                ->where('StoreDocID', $storeDoc->StoreDocID)
+                ->where('ProductID', $product)
+                ->update([
+                    'Quantity' => $quantity,
+                    'Price' => $priceNoVat,
+                    'PriceLVL' => $priceNoVat,
+                    'VatRate' => $taxRate,
+                    'DiscountPercent' => $discount,
+                    'PriceWithTax' => $priceWithTaxAndDiscount,
+                ]);
+
+        }
+        return true;
+
+    }
+
+    function isTransactionConsistent($storeDocID, Tender $record): bool
     {
         if (!$storeDocID) {
             return false;
@@ -255,7 +316,7 @@ class TenderImport
         return true;
     }
 
-    function cleanupPartialTransaction($storeDocID,Tender $record, $identifier): void
+    function cleanupPartialTransaction($storeDocID, Tender $record, $identifier): void
     {
         if (!$storeDocID) {
             return;
@@ -269,25 +330,26 @@ class TenderImport
                 StoreDoc::where('StoreDocID', $storeDocID)->delete();
                 StoreDocLine::where('StoreDocID', $storeDocID)->delete();
 
-                \App\Models\Log::write($record,"Veiksmīgi notīrīts daļēji importētais darījums");
+                \App\Models\Log::write($record, "Veiksmīgi notīrīts daļēji importētais darījums");
                 return;
 
             } catch (\Exception $e) {
 
-                \App\Models\Log::write($record,"Mēģinājums {$attempt} notīrīt nepabeigtos ierakstus neizdevās. Kļūda: {$e->getMessage()}");
+                \App\Models\Log::write($record,
+                    "Mēģinājums {$attempt} notīrīt nepabeigtos ierakstus neizdevās. Kļūda: {$e->getMessage()}");
 
                 $attempt++;
 
                 $delay = min(self::RETRY_DELAY * pow(self::BACKOFF_FACTOR, $attempt), self::MAX_DELAY);
 
                 if ($attempt < self::MAX_RETRIES) {
-                    \App\Models\Log::write($record,"Atkārtoti mēģinām notīrīt ierakstus pēc {$delay} sekundēm");
+                    \App\Models\Log::write($record, "Atkārtoti mēģinām notīrīt ierakstus pēc {$delay} sekundēm");
                     sleep($delay);
                 }
             }
         }
 
-        \App\Models\Log::write($record,"Neizdevās notīrīt daļējos ierakstus pēc ". self::MAX_RETRIES." mēģinājumiem.");
+        \App\Models\Log::write($record, "Neizdevās notīrīt daļējos ierakstus pēc ".self::MAX_RETRIES." mēģinājumiem.");
     }
 
 
@@ -300,19 +362,17 @@ class TenderImport
             'storeDocData' => json_encode($storeDocData),
         ];
 
-        try
-        {
-          //  Mail::to('admin@example.com')->send(new TransactionFailureMail($emailData));
-        }
-        catch (\Exception $mailException) {
-            Log::error("Failed to send failure alert email: " . $mailException->getMessage());
+        try {
+            //  Mail::to('admin@example.com')->send(new TransactionFailureMail($emailData));
+        } catch (\Exception $mailException) {
+            Log::error("Failed to send failure alert email: ".$mailException->getMessage());
         }
     }
 
 
     public function getDiscount($discount)
     {
-        return (float) $discount > 0 ? number_format((float) $discount,4) : null;
+        return (float) $discount > 0 ? number_format((float) $discount, 4) : null;
     }
 
 }

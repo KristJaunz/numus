@@ -215,10 +215,14 @@ class TenderResource extends Resource
                     }),
 
                 Tables\Actions\BulkAction::make('Resend')
-                    ->label('Sūtīt velreiz')
+                    ->label('Sinhronizēt atkārtoti')
                     ->action(function ($records) {
 
-                        dd($records);
+                        $import = new TenderImport();
+
+                        foreach ($records as $document) {
+                            $import->resync($document);
+                        }
 
                     }),
 
