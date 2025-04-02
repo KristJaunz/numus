@@ -216,9 +216,9 @@ class TenderResource extends Resource
 
                 Tables\Actions\BulkAction::make('Resend')
                     ->label('Sūtīt velreiz')
-                    ->action(function ($record) {
+                    ->action(function ($records) {
 
-                        dd($record);
+                        dd($records);
 
                     }),
 
