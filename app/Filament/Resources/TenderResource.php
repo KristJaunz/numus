@@ -63,7 +63,9 @@ class TenderResource extends Resource
 
                 TextColumn::make('doc_no_serial')->label('Sērija')
                     ->toggleable()
-                    ->searchable(true,isIndividual: true)
+                    ->searchable(query: function ( $query, string $search) {
+                        return $query->where('doc_no_serial',  "{$search}");
+                    },isIndividual: true)
                     ->sortable(),
 
                 TextColumn::make('doc_no')->label('Dokumenta Nr.')
