@@ -74,7 +74,7 @@ class TenderImport
         $connection = DB::connection('sqlsrv');
 
 
-        $productConf = Product::read($record->i);
+       // $productConf = Product::read($record->i);
 
 
         while ($attempt < self::MAX_RETRIES) {
