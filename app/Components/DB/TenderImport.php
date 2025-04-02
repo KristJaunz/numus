@@ -237,6 +237,8 @@ class TenderImport
     public function resync(Tender $record): bool
     {
 
+        dd($record);
+
         if ($record->store_doc_id > 0 and !empty($record->store_doc_id)) {
             \App\Models\Log::write($record, 'Ieraksts nav sinhronizēts!!');
             return false;
