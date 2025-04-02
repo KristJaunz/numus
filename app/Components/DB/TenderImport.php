@@ -292,12 +292,12 @@ class TenderImport
                 ->where('StoreDocID', $storeDoc->StoreDocID)
                 ->where('ProductID', $product)
                 ->update([
-                    'Quantity' => $quantity,
+                   // 'Quantity' => $quantity,
                     'Price' => $priceNoVat,
                     'PriceLVL' => $priceNoVat,
                     'VatRate' => $taxRate,
                     'DiscountPercent' => $discount,
-                    'PriceWithTax' => $priceWithTaxAndDiscount,
+                 //   'PriceWithTax' => $priceWithTaxAndDiscount,
                 ]);
 
         }
