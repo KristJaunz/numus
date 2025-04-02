@@ -219,13 +219,11 @@ class TenderResource extends Resource
                 Tables\Actions\BulkAction::make('Resend')
                     ->label('Sinhronizēt atkārtoti')
                     ->action(function ($records) {
-
                         $import = new TenderImport();
 
                         foreach ($records as $document) {
                             $import->resync($document);
                         }
-
                     }),
 
             ])
