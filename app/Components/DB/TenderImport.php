@@ -288,7 +288,7 @@ class TenderImport
                 return false;
             }
 
-            StoreDocLine::query()
+/*            StoreDocLine::query()
                 ->where('StoreDocID', $storeDoc->StoreDocID)
                 ->where('ProductID', $product)
                 ->update([
@@ -297,7 +297,21 @@ class TenderImport
                     'PriceLVL' => $priceNoVat,
                     'VatRate' => $taxRate,
                     'DiscountPercent' => $discount,
-                 //   'PriceWithTax' => $priceWithTaxAndDiscount,
+                    'PriceWithTax' => $priceWithTaxAndDiscount,
+                ]);*/
+
+            StoreDocLine::query()
+                ->where('StoreDocID', $storeDoc->StoreDocID)
+                ->where('ProductID', $product)
+                ->update([
+                    'VatRate' => $taxRate,
+                ]);
+
+            StoreDocLine::query()
+                ->where('StoreDocID', $storeDoc->StoreDocID)
+                ->where('ProductID', $product)
+                ->update([
+                    'PriceWithTax' => $priceWithTaxAndDiscount,
                 ]);
 
         }
