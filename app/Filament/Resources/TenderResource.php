@@ -190,13 +190,6 @@ class TenderResource extends Resource
                         return $import->importStoreDocWithRetries($record);
                     }),
 
-                Action::make('Resend')
-                    ->label('Sūtīt velreiz')
-                    ->action(function ($record) {
-
-                        dd($record);
-
-                    }),
 
 
             ])
@@ -220,6 +213,15 @@ class TenderResource extends Resource
                         }
 
                     }),
+
+                Tables\Actions\BulkAction::make('Resend')
+                    ->label('Sūtīt velreiz')
+                    ->action(function ($record) {
+
+                        dd($record);
+
+                    }),
+
             ])
             ->filtersLayout(Tables\Enums\FiltersLayout::Modal);
     }
