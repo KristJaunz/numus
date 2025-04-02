@@ -278,17 +278,18 @@ class TenderImport
                 $priceNoVat = $catalogPrice;
             }
 
-            StoreDocLine::query()
+            dd(StoreDocLine::query()
                 ->where('StoreDocID', $storeDoc->StoreDocID)
                 ->where('ProductID', $product)
-                ->update([
+                ->count());
+               /* ->update([
                     'Quantity' => $quantity,
                     'Price' => $priceNoVat,
                     'PriceLVL' => $priceNoVat,
                     'VatRate' => $taxRate,
                     'DiscountPercent' => $discount,
                     'PriceWithTax' => $priceWithTaxAndDiscount,
-                ]);
+                ])*/;
 
         }
         return true;
