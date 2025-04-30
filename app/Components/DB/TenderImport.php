@@ -161,7 +161,8 @@ class TenderImport
 
                         'DiscountPercent' => $discount,
                         'PriceWithTax' => $priceWithTaxAndDiscount,
-                        'StoreOutID' => $shop,
+                        'StoreOutID' => $storeDocType == DocumentType::SALES_INVOICE->value ? $shop : null,
+                        'StoreInID' => $storeDocType == DocumentType::RETURN_OF_SOLD_PRODUCT->value ? $shop : null,
                     ]);
 
                 }
