@@ -16,7 +16,6 @@ enum DocumentType: int
     CASE SALES_ORDER = 21;
     CASE BILL = 25;
 
-
     public function label(): string {
         return match($this) {
             self::PURCHASE_INVOICE => __('Purchase Invoice'),

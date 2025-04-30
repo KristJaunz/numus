@@ -62,7 +62,13 @@ class StoreDocLine extends Jumis
 
 
 
-            } else {
+            }
+            if ($document->StoreDocTypeID == DocumentType::RETURN_OF_SOLD_PRODUCT)
+            {
+                $documentLine->Cost = null;
+                $documentLine->PricePurchase = null;
+            }
+            else {
                 throw new \Exception('Sistēma pašlaik neatbalsta šī dokumenta labošanu.');
             }
 

@@ -152,7 +152,7 @@ class TenderImport
                     StoreDocLine::create([
                         'StoreDocID' => $storeDocID,
                         'ProductID' => $product,
-                        'Quantity' => $quantity,
+                        'Quantity' => $quantity, // PricePurchase, StoreDocType
 
                         'Price' => $priceNoVat,
                         'PriceLVL' => $priceNoVat,
