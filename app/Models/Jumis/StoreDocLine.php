@@ -63,7 +63,7 @@ class StoreDocLine extends Jumis
 
 
             }
-            if ($document->StoreDocTypeID == DocumentType::RETURN_OF_SOLD_PRODUCT)
+            if ($document->StoreDocTypeID == DocumentType::RETURN_OF_SOLD_PRODUCT->value)
             {
                 $documentLine->Cost = null;
                 $documentLine->PricePurchase = null;
