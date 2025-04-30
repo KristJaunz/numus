@@ -56,17 +56,16 @@ class StoreDocLine extends Jumis
 
                 $documentLine->Cost = null;
                 $documentLine->PricePurchase = null;
-
-
-
-
-
-
             }
             if ($document->StoreDocTypeID == DocumentType::RETURN_OF_SOLD_PRODUCT->value)
             {
-                $documentLine->Cost = null;
-                $documentLine->PricePurchase = null;
+                $pricePurchase = StoreDocLine::where('ProductID', $documentLine->ProductID)
+                    ->select('PurchasePrice')
+                    ->where('StoreDocTypeID', DocumentType::PURCHASE_INVOICE->value)
+                    ->latest('StoreDocLineID')->first();
+
+                $documentLine->Cost = $pricePurchase->Cost;
+                $documentLine->PricePurchase = $pricePurchase->PricePurchase;
             }
             else {
                 throw new \Exception('Sistēma pašlaik neatbalsta šī dokumenta labošanu.');
