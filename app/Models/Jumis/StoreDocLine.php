@@ -62,7 +62,7 @@ class StoreDocLine extends Jumis
                 $pricePurchase = StoreDocLine::where('ProductID', $documentLine->ProductID)
                     ->select(['PricePurchase','Cost'])
                     ->where('StoreDocTypeID', DocumentType::PURCHASE_INVOICE->value)
-                    ->latest('StoreDocLineID')->first();
+                    ->latest('LineID')->first();
 
                 $documentLine->Cost = $pricePurchase->Cost;
                 $documentLine->PricePurchase = $pricePurchase->PricePurchase;
