@@ -60,7 +60,7 @@ class StoreDocLine extends Jumis
             if ($document->StoreDocTypeID == DocumentType::RETURN_OF_SOLD_PRODUCT->value)
             {
                 $pricePurchase = StoreDocLine::where('ProductID', $documentLine->ProductID)
-                    ->select('PurchasePrice')
+                    ->select(['PricePurchase','Cost'])
                     ->where('StoreDocTypeID', DocumentType::PURCHASE_INVOICE->value)
                     ->latest('StoreDocLineID')->first();
 
