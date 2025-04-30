@@ -52,8 +52,9 @@ class TenderImport
 
         if (str($record->doc_no_serial)->contains('Atgr.')) {
 
-            \App\Models\Log::write($record, 'Darījums ir atgriešanas dokuments. Izlaižam.');
-            return false;
+            $storeDocType = DocumentType::RETURN_OF_SOLD_PRODUCT->value;
+         //   \App\Models\Log::write($record, 'Darījums ir atgriešanas dokuments. Izlaižam.');
+         //   return false;
         }
 
         $shop = Shop::list()->where('doc_serial', $record->doc_no_serial)->first();
@@ -103,7 +104,6 @@ class TenderImport
                     'PriceTaxIncluded' => 1,
                     'DocStatus' => $docStatus,
                     'Comments' => $record->comment,
-
                 ]);
 
                 $storeDocID = $storeDoc->StoreDocID;
