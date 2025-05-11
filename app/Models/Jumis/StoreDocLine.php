@@ -39,7 +39,8 @@ class StoreDocLine extends Jumis
                     $documentLine->PriceWithTax = 0;
                 }
 
-            } elseif ($document->StoreDocTypeID == DocumentType::SALES_INVOICE->value) {
+            }
+            elseif ($document->StoreDocTypeID == DocumentType::SALES_INVOICE->value) {
 
 
 
@@ -57,7 +58,7 @@ class StoreDocLine extends Jumis
                 $documentLine->Cost = null;
                 $documentLine->PricePurchase = null;
             }
-            if ($document->StoreDocTypeID == DocumentType::RETURN_OF_SOLD_PRODUCT->value)
+            else if ($document->StoreDocTypeID == DocumentType::RETURN_OF_SOLD_PRODUCT->value)
             {
                 $pricePurchase = StoreDocLine::where('ProductID', $documentLine->ProductID)
                     ->select(['PricePurchase','Cost'])
