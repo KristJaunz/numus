@@ -68,7 +68,10 @@ class StoreDocLine extends Jumis
                 $documentLine->PricePurchase = $pricePurchase->PricePurchase;
             }
             else {
-                throw new \Exception('Sistēma pašlaik neatbalsta šī dokumenta labošanu.');
+
+
+
+                throw new \Exception('Sistēma pašlaik neatbalsta šī dokumenta labošanu.:'. $document->StoreDocTypeID);
             }
 
             $documentLine->LinkedLine = 0;
